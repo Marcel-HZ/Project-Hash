@@ -1,4 +1,4 @@
-"""Hash 加密原理与实战教学项目 — CLI 入口。"""
+"""Hash 函数原理与实战教学项目 — CLI 入口。"""
 
 from __future__ import annotations
 
