@@ -55,7 +55,7 @@ class MarkdownBuilder:
 
     def build(self) -> str:
         lines: list[str] = []
-        lines.append("# Hash 加密原理与实战指南\n")
+        lines.append("# 加密过程及解析\n")
         lines.append("## 目录\n")
         for s in self._sections:
             anchor = f"{s.number}-{s.title}".replace(" ", "-").lower()

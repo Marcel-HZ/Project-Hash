@@ -1,4 +1,4 @@
-# Hash 加密原理与实战指南
+# 加密过程及解析
 
 ## 目录
 
@@ -13,10 +13,10 @@
 
 ## 本次运行总览
 
-- **演示明文**: `ecupl-914`
-- **明文长度**: 9 字符
-- **SHA-256 Hex**: `fa0572d3e1c63afd4529bba48503b321c6f0b9345bc8069aea1788ce3b6f1d42`
-- **无盐 SHA-256**: `fa0572d3e1c63afd4529bba48503b321c6f0b9345bc8069aea1788ce3b6f1d42`
+- **演示明文**: `nku-2025`
+- **明文长度**: 8 字符
+- **SHA-256 Hex**: `e8ae2a70e2124db1c2c3f65c91d320391f8849fe34375a542b1b2344929a2593`
+- **无盐 SHA-256**: `e8ae2a70e2124db1c2c3f65c91d320391f8849fe34375a542b1b2344929a2593`
 
 ---
 
@@ -49,9 +49,9 @@ b64_digest = base64.b64encode(sha256_digest(password.encode())).decode()
 ### 运行示例
 
 
-明文: 'ecupl-914'
-SHA-256 Hex:   fa0572d3e1c63afd4529bba48503b321c6f0b9345bc8069aea1788ce3b6f1d42
-SHA-256 Base64: +gVy0+HGOv1FKbukhQOzIcbwuTRbyAaa6heIzjtvHUI=
+明文: 'nku-2025'
+SHA-256 Hex:   e8ae2a70e2124db1c2c3f65c91d320391f8849fe34375a542b1b2344929a2593
+SHA-256 Base64: 6K4qcOISTbHCw/ZckdMgOR+ISf40N1pUKxsjRJKaJZM=
 
 ---
 
@@ -90,10 +90,10 @@ safe = b64_encode(password.encode(), urlsafe=True)
 ### 运行示例
 
 
-明文: 'ecupl-914'
-原始字节: b'ecupl-914'
-标准 Base64: ZWN1cGwtOTE0
-URL-safe Base64: ZWN1cGwtOTE0
+明文: 'nku-2025'
+原始字节: b'nku-2025'
+标准 Base64: bmt1LTIwMjU=
+URL-safe Base64: bmt1LTIwMjU
 
 ---
 
@@ -129,12 +129,12 @@ def hash_with_salt(pwd: str, salt: bytes | None = None) -> tuple[bytes, bytes]:
 ### 运行示例
 
 
-明文: 'ecupl-914'
-无盐 SHA-256: fa0572d3e1c63afd4529bba48503b321c6f0b9345bc8069aea1788ce3b6f1d42
-加盐1: 75f59b3698e56f9b8fd06e249ba49854d95add517ea3fe4bd761dfbaf219970c
-  盐值: 1a195c190c02c3cb7258d642b8fabb4a
-加盐2: 8f3d4e6a59481e9e96a44b00c2e31f5061cb5a54dbc6bdcb32ab484dd09b8cda
-  盐值: ef4a884a9aa4642b9e1cc9264ef81327
+明文: 'nku-2025'
+无盐 SHA-256: e8ae2a70e2124db1c2c3f65c91d320391f8849fe34375a542b1b2344929a2593
+加盐1: 3c1f00683f234348f49b6432c830c05f428b64639de6f74657f15c02d338679c
+  盐值: ce9583456a21e9808437049b606cfbdc
+加盐2: 6bc8a8be5ec4c14dc24bd8331a1f56ad66808b039ed5b6a2d627e2524fcf5d3a
+  盐值: f735e6cd69294b9ad5f46b3aa15bd93e
 → 相同密码 + 不同盐 → 不同哈希，彩虹表失效。
 
 ---
@@ -171,11 +171,11 @@ def derive_key(pwd: str, salt: bytes, iterations: int = 600_000, dklen: int = 32
 ### 运行示例
 
 
-明文: 'ecupl-914'
-盐值: 1fbdf426a2d1cbe51cde3196691e648b (16 字节)
+明文: 'nku-2025'
+盐值: 9b9cf11fde69259e8661285266ca4c06 (16 字节)
 迭代次数: 600,000
-派生密钥: ae20fb71c45a6149e4ddcc453d16f1a1653f0bf8c8bda982d5ddd5e0f6fe7cfb
-用时: 0.133s
+派生密钥: d5c966370e56b3bdc1b2f7f7245dbc6c2c0b4cc262b6feb688e3e36b40c49e8f
+用时: 0.167s
 
 ---
 
@@ -222,14 +222,14 @@ def verify_file(path: Path, expected: str) -> bool:
 ### 运行示例
 
 
-明文: 'ecupl-914'
-测试文件: password_data.bin (1,800 bytes)
-原始 SHA-256: 4aec81e5d420e68fb13ddc0be7343656b3b39ea85513f6a42e5321d1afddffd6
-用时: 0.0004s
+明文: 'nku-2025'
+测试文件: password_data.bin (1,600 bytes)
+原始 SHA-256: 286851c2b8ecfb397cc4a8c76b03a2b063b44e9a67a503cb43a497d4f17baba9
+用时: 0.0007s
 验证原始文件: 通过
 已篡改文件偏移 512 处一字节...
-篡改后 SHA-256: d85b151de6b499a5e93ea2d39af3b87b244a57311c43e794348a3a765ccb12ba
-用时: 0.0004s
+篡改后 SHA-256: 2ad143a8989589d985f985c9620026d550db14f596e9fd1c7853abc9444bca03
+用时: 0.0006s
 验证失败！数据完整性已被破坏。
 
 ---
@@ -291,32 +291,32 @@ def crack(hash_val, table, hash_fn, chain_len=1000):
 ### 运行示例
 
 
-明文: 'ecupl-914'
+明文: 'nku-2025'
 
 --- 场景: 快哈希 + 无盐 ---
-目标哈希: fa0572d3e1c63afd4529bba48503b321c6f0b9345bc8069aea1788ce3b6f1d42
-彩虹表构建用时: 0.199s
+目标哈希: e8ae2a70e2124db1c2c3f65c91d320391f8849fe34375a542b1b2344929a2593
+彩虹表构建用时: 0.202s
 破解用时: 0.000s
-破解结果: 成功 → 找到密码: ecupl-914
+破解结果: 成功 → 找到密码: nku-2025
 
 --- 场景: 快哈希 + 有盐 ---
-目标哈希: cdb78527e777f84b85ad26739ec424eb032c2cacfc64b6b5b38e532a52076a76
-盐值: bc388a1e25dab913
-彩虹表构建用时: 0.210s
-破解用时: 0.021s
+目标哈希: 6c7a8e6ec153f752e720afd7906cf957d6bfb3417ccd06f291524c2cf1ef22d7
+盐值: 65d918693aec297a
+彩虹表构建用时: 0.173s
+破解用时: 0.018s
 破解结果: 失败 → 未找到匹配
 
 --- 场景: 慢哈希 + 无盐 ---
-目标哈希: 368d78ec274e0e09b12f233c3036a84e756030923ed8532170c3080d94248121
-彩虹表构建用时: 15.691s
-破解用时: 0.015s
-破解结果: 成功 → 找到密码: ecupl-914
+目标哈希: ce6037f3ae298801288379f7fa0e7c4467adb34b3b508eed61a582e1fbd7174b
+彩虹表构建用时: 15.658s
+破解用时: 0.014s
+破解结果: 成功 → 找到密码: nku-2025
 
 --- 场景: 慢哈希 + 有盐 ---
-目标哈希: d79b3af5c233268f3ea0b00050883e1cb7a75a7739ead285bb3249e1049c8492
-盐值: b0de5752f4eb792b
-彩虹表构建用时: 18.637s
-破解用时: 0.342s
+目标哈希: bf950080018c599e1cef8b70714bd33a26a06e8d14fec6670a9049001eedb4ad
+盐值: b181419655caef12
+彩虹表构建用时: 15.184s
+破解用时: 0.364s
 破解结果: 失败 → 未找到匹配
 
 ---
