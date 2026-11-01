@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
-import hashlib
+from hash_impl.sha256 import SHA256
 import secrets
 
 from context import get_password, set_sample
+def _sha256(data):
+    s=SHA256(); s.update(data); return s.digest()
+
 from utils.formatting import print_step_header, print_success, print_info, print_warning
 
 LECTURE_SALT = """\
@@ -29,14 +32,14 @@ SALT_SAMPLE_CODE = '''\
 def hash_with_salt(pwd: str, salt: bytes | None = None) -> tuple[bytes, bytes]:
     if salt is None:
         salt = secrets.token_bytes(16)
-    return hashlib.sha256(salt + pwd.encode()).digest(), salt
+    return _sha256(salt + pwd.encode()), salt
 '''
 
 
 def hash_with_salt(pwd: str, salt: bytes | None = None) -> tuple[bytes, bytes]:
     if salt is None:
         salt = secrets.token_bytes(16)
-    return hashlib.sha256(salt + pwd.encode()).digest(), salt
+    return _sha256(salt + pwd.encode()), salt
 
 
 def demo() -> None:
@@ -45,7 +48,7 @@ def demo() -> None:
     pwd = get_password()
     print_info(f"明文: {pwd!r}")
 
-    no_salt_hash = hashlib.sha256(pwd.encode()).hexdigest()
+    no_salt_hash = _sha256(pwd.encode()).hex()
     print_warning(f"无盐 SHA-256: {no_salt_hash}")
 
     h1, s1 = hash_with_salt(pwd)

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import hashlib
+from hash_impl.sha256 import SHA256
 import os
 import tempfile
 import time
@@ -15,7 +15,6 @@ from utils.formatting import (
     print_info,
     print_warning,
     print_error,
-    make_progress_bar,
     prompt_continue,
 )
 
@@ -39,13 +38,12 @@ LECTURE_CHECKSUM = """\
 
 CHECKSUM_SAMPLE_CODE = '''\
 def file_sha256(path: Path, chunk_size: int = 8192) -> str:
-    h = hashlib.sha256()
+    h = SHA256()
     with open(path, "rb") as f:
-        for chunk in make_progress_bar(
-            iter(lambda: f.read(chunk_size), b""),
-            desc="哈希中",
-            total=os.path.getsize(path),
-        ):
+        while True:
+            chunk = f.read(chunk_size)
+            if not chunk:
+                break
             h.update(chunk)
     return h.hexdigest()
 
@@ -56,14 +54,13 @@ def verify_file(path: Path, expected: str) -> bool:
 
 
 def file_sha256(path: Path, chunk_size: int = 8192) -> str:
-    h = hashlib.sha256()
-    total = os.path.getsize(path)
+    """流式计算文件 SHA-256（不显示进度条）"""
+    h = SHA256()
     with open(path, "rb") as f:
-        for chunk in make_progress_bar(
-            iter(lambda: f.read(chunk_size), b""),
-            desc="哈希中",
-            total=total,
-        ):
+        while True:
+            chunk = f.read(chunk_size)
+            if not chunk:
+                break
             h.update(chunk)
     return h.hexdigest()
 
@@ -93,6 +90,7 @@ def demo() -> None:
     ok = verify_file(test_file, original_hash)
     print_success(f"验证原始文件: {'通过' if ok else '失败'}")
 
+    # 篡改文件
     with open(test_file, "r+b") as f:
         f.seek(512)
         f.write(b"\x00")
@@ -103,9 +101,12 @@ def demo() -> None:
     elapsed2 = time.perf_counter() - start2
     print_info(f"篡改后 SHA-256: {new_hash}")
     print_info(f"用时: {elapsed2:.4f}s")
+
     ok2 = verify_file(test_file, original_hash)
     if not ok2:
         print_error("验证失败！数据完整性已被破坏。")
+    else:
+        print_error("验证仍然通过（异常情况）")
 
     sample = f"""\
 明文: {pwd!r}

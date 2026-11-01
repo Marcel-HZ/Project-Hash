@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import base64
-import hashlib
 
 from context import get_password, set_sample
+from hash_impl.sha256 import SHA256
 from utils.formatting import print_step_header, print_success, print_info
 
 LECTURE_SHA256 = """\
@@ -22,16 +22,21 @@ SHA-256 属于 SHA-2 家族，由 NSA 设计、NIST 标准化 (FIPS 180-4)。
 """
 
 SHA256_SAMPLE_CODE = '''\
+from hash_impl.sha256 import SHA256
+
 def sha256_digest(data: bytes) -> bytes:
-    return hashlib.sha256(data).digest()
+    s = SHA256()
+    s.update(data)
+    return s.digest()
 
 hex_digest = sha256_digest(password.encode()).hex()
 b64_digest = base64.b64encode(sha256_digest(password.encode())).decode()
 '''
 
-
 def sha256_digest(data: bytes) -> bytes:
-    return hashlib.sha256(data).digest()
+    s = SHA256()
+    s.update(data)
+    return s.digest()
 
 
 def demo() -> None:

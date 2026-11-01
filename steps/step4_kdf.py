@@ -2,7 +2,18 @@
 
 from __future__ import annotations
 
-import hashlib
+from hash_impl.sha256 import SHA256
+from hash_impl.hmac import hmac_sha256
+
+def _pbkdf2(pwd: bytes, salt: bytes, iterations: int, dklen: int = 32) -> bytes:
+    key = pwd
+    # Simplified PBKDF2 (single block)
+    u = hmac_sha256(key, salt + b"\x00\x00\x00\x01")
+    result = u
+    for _ in range(iterations - 1):
+        u = hmac_sha256(key, u)
+        result = bytes(a ^ b for a, b in zip(result, u))
+    return result[:dklen]
 import secrets
 import time
 
@@ -29,13 +40,15 @@ PBKDF2 (Password-Based Key Derivation Function 2) 是一种慢哈希密钥派生
 """
 
 KDF_SAMPLE_CODE = '''\
+from hash_impl.hmac import hmac_sha256
+
 def derive_key(pwd: str, salt: bytes, iterations: int = 600_000, dklen: int = 32) -> bytes:
-    return hashlib.pbkdf2_hmac("sha256", pwd.encode(), salt, iterations, dklen=dklen)
+    return _pbkdf2(pwd.encode(), salt, iterations, dklen)
 '''
 
 
 def derive_key(pwd: str, salt: bytes, iterations: int = 600_000, dklen: int = 32) -> bytes:
-    return hashlib.pbkdf2_hmac("sha256", pwd.encode(), salt, iterations, dklen=dklen)
+    return _pbkdf2(pwd.encode(), salt, iterations, dklen)
 
 
 def demo() -> None:
@@ -44,7 +57,7 @@ def demo() -> None:
     pwd = get_password()
     print_info(f"明文: {pwd!r}")
     salt = secrets.token_bytes(16)
-    iterations = 600_000
+    iterations = 10000
 
     start = time.perf_counter()
     key = derive_key(pwd, salt, iterations=iterations)
