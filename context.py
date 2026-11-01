@@ -3,31 +3,52 @@
 from __future__ import annotations
 
 PASSWORD: str = ""
-SAMPLES: dict[int, str] = {}  # step_number -> real sample output
+SAMPLES: dict[int, str] = {}
+
+# SHA-256 visualization state
+SHA256_TRACE: dict = {}
+SHA256_DIGEST: str = ""
+SHA256_CURRENT_STAGE: int = 0
+SHA256_CURRENT_BLOCK: int = 0
+SHA256_CURRENT_ROUND: int = 0
+SHA256_VISUALIZATION_MODE: str = "interactive"
 
 
 def set_password(pwd: str) -> None:
-    """设置当前演示使用的密码。"""
     global PASSWORD
     PASSWORD = pwd
 
 
 def get_password() -> str:
-    """获取当前演示使用的密码。"""
     return PASSWORD
 
 
 def set_sample(step: int, text: str) -> None:
-    """记录指定步骤的运行时样本输出。"""
     SAMPLES[step] = text
 
 
 def get_sample(step: int, fallback: str = "") -> str:
-    """获取指定步骤的运行时样本输出，无则返回 fallback。"""
     return SAMPLES.get(step, fallback)
 
 
 def reset_samples() -> None:
-    """清空所有样本（每次全跑前调用）。"""
     global SAMPLES
     SAMPLES = {}
+
+
+def set_trace(trace: dict) -> None:
+    global SHA256_TRACE
+    SHA256_TRACE = trace
+
+
+def get_trace() -> dict:
+    return SHA256_TRACE
+
+
+def reset_trace() -> None:
+    global SHA256_TRACE, SHA256_DIGEST, SHA256_CURRENT_STAGE, SHA256_CURRENT_BLOCK, SHA256_CURRENT_ROUND
+    SHA256_TRACE = {}
+    SHA256_DIGEST = ""
+    SHA256_CURRENT_STAGE = 0
+    SHA256_CURRENT_BLOCK = 0
+    SHA256_CURRENT_ROUND = 0

@@ -13,10 +13,10 @@
 
 ## 本次运行总览
 
-- **演示明文**: `ecupl-2025 for a chance`
-- **明文长度**: 23 字符
-- **SHA-256 Hex**: `f50c3973c600079e38a1a7fca6d81d302d3d41bc404ebad12b9124f03fa51fb3`
-- **无盐 SHA-256**: `f50c3973c600079e38a1a7fca6d81d302d3d41bc404ebad12b9124f03fa51fb3`
+- **演示明文**: `ecupl-3001`
+- **明文长度**: 10 字符
+- **SHA-256 Hex**: `a719c057b0cbe40d8ae7125eb24104eb46859d34887d61f0082eea47826c531b`
+- **无盐 SHA-256**: `a719c057b0cbe40d8ae7125eb24104eb46859d34887d61f0082eea47826c531b`
 
 ---
 
@@ -52,10 +52,21 @@ b64_digest = base64.b64encode(sha256_digest(password.encode())).decode()
 
 ### 运行示例
 
+明文: 'ecupl-3001'
+SHA-256 Hex:   a719c057b0cbe40d8ae7125eb24104eb46859d34887d61f0082eea47826c531b
+SHA-256 Base64: pxnAV7DL5A2K5xJeskEE60aFnTSIfWHwCC7qR4JsUxs=
 
-明文: 'ecupl-2025 for a chance'
-SHA-256 Hex:   f50c3973c600079e38a1a7fca6d81d302d3d41bc404ebad12b9124f03fa51fb3
-SHA-256 Base64: 9Qw5c8YAB544oaf8ptgdMC09QbxATrrRK5Ek8D+lH7M=
+#### SHA-256 计算过程
+- **原始消息**: `b'ecupl-3001'`
+- **原始长度**: 10 字节
+- **填充后长度**: 64 字节
+- **分组数**: 1
+- **初始状态**: 6a09e667 bb67ae85 3c6ef372 a54ff53a 510e527f 9b05688c 1f83d9ab 5be0cd19
+- **最终摘要**: `a719c057b0cbe40d8ae7125eb24104eb46859d34887d61f0082eea47826c531b`
+
+#### 消息块 0
+- 初始状态: 6a09e667 bb67ae85 3c6ef372 a54ff53a 510e527f 9b05688c 1f83d9ab 5be0cd19
+- 最终状态: a719c057 b0cbe40d 8ae7125e b24104eb 46859d34 887d61f0 082eea47 826c531b
 
 ---
 
@@ -93,11 +104,10 @@ safe = b64_encode(password.encode(), urlsafe=True)
 
 ### 运行示例
 
-
-明文: 'ecupl-2025 for a chance'
-原始字节: b'ecupl-2025 for a chance'
-标准 Base64: ZWN1cGwtMjAyNSBmb3IgYSBjaGFuY2U=
-URL-safe Base64: ZWN1cGwtMjAyNSBmb3IgYSBjaGFuY2U
+明文: 'ecupl-3001'
+原始字节: b'ecupl-3001'
+标准 Base64: ZWN1cGwtMzAwMQ==
+URL-safe Base64: ZWN1cGwtMzAwMQ
 
 ---
 
@@ -132,13 +142,12 @@ def hash_with_salt(pwd: str, salt: bytes | None = None) -> tuple[bytes, bytes]:
 
 ### 运行示例
 
-
-明文: 'ecupl-2025 for a chance'
-无盐 SHA-256: f50c3973c600079e38a1a7fca6d81d302d3d41bc404ebad12b9124f03fa51fb3
-加盐1: 8a2660a0e602a64e7ee2a73b81d9bca11209cb9a4f07afb7cee3946578468e16
-  盐值: 34a21b1861119787c6081b3844d014c4
-加盐2: 9258635ff86c443c26409eb1c6e062d5e248c4a70093c70e7c6e2c5462c38d42
-  盐值: 6283c86ddf4fea09ffbf6bb583452707
+明文: 'ecupl-3001'
+无盐 SHA-256: a719c057b0cbe40d8ae7125eb24104eb46859d34887d61f0082eea47826c531b
+加盐1: adf9590a3823720eb2f445142d5fae864c46d20a01c8895e41744cfaef5ec81e
+  盐值: 5a958bb4f5022b91e652aae18f10cbc6
+加盐2: ec7d048c9f14fc84e0642e297012a9e38b211aa9fb0245b54a330c31c0f59873
+  盐值: 35d332fe1c8763b37037fab61860f797
 → 相同密码 + 不同盐 → 不同哈希，彩虹表失效。
 
 ---
@@ -176,12 +185,11 @@ def derive_key(pwd: str, salt: bytes, iterations: int = 600_000, dklen: int = 32
 
 ### 运行示例
 
-
-明文: 'ecupl-2025 for a chance'
-盐值: ec0def960cc1e41ed77457195e48f48a (16 字节)
+明文: 'ecupl-3001'
+盐值: b7ca5c421c1739b92e3c4cd4ff65a9a6 (16 字节)
 迭代次数: 600,000
-派生密钥: ec17c1acf90f082ce76adf366bfa9440929d9b17537238f2d703aae6ea86fd98
-用时: 7.743s
+派生密钥: 05c5c27b39dd8f1212fa413dad9351efdeb643d2f94248dedbb8efdab0901c11
+用时: 7.568s
 
 ---
 
@@ -212,11 +220,10 @@ def derive_key(pwd: str, salt: bytes, iterations: int = 600_000, dklen: int = 32
 def file_sha256(path: Path, chunk_size: int = 8192) -> str:
     h = SHA256()
     with open(path, "rb") as f:
-        for chunk in make_progress_bar(
-            iter(lambda: f.read(chunk_size), b""),
-            desc="哈希中",
-            total=os.path.getsize(path),
-        ):
+        while True:
+            chunk = f.read(chunk_size)
+            if not chunk:
+                break
             h.update(chunk)
     return h.hexdigest()
 
@@ -227,15 +234,14 @@ def verify_file(path: Path, expected: str) -> bool:
 
 ### 运行示例
 
-
-明文: 'ecupl-2025 for a chance'
-测试文件: password_data.bin (4,600 bytes)
-原始 SHA-256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
-用时: 0.0377s
+明文: 'ecupl-3001'
+测试文件: password_data.bin (2,000 bytes)
+原始 SHA-256: 836c9639f7244fca4cb7bfe1d7915880307c6d062e6b1f613b7e72819e66a06e
+用时: 0.0063s
 验证原始文件: 通过
 已篡改文件偏移 512 处一字节...
-篡改后 SHA-256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
-用时: 0.0007s
+篡改后 SHA-256: 144a494019c264ecf2fdd0762dc590302d32e2245fa0118854b5bcb3bac70f93
+用时: 0.0070s
 验证失败！数据完整性已被破坏。
 
 ---
@@ -296,31 +302,30 @@ def crack(hash_val, table, hash_fn, chain_len=1000):
 
 ### 运行示例
 
-
-明文: 'ecupl-2025 for a chance'
+明文: 'ecupl-3001'
 
 --- 场景: 快哈希 + 无盐 ---
-目标哈希: f50c3973c600079e38a1a7fca6d81d302d3d41bc404ebad12b9124f03fa51fb3
-彩虹表构建用时: 48.203s
-破解用时: 0.075s
-破解结果: 成功 → 找到密码: ecupl-2025 for a chance
+目标哈希: a719c057b0cbe40d8ae7125eb24104eb46859d34887d61f0082eea47826c531b
+彩虹表构建用时: 37.536s
+破解用时: 0.038s
+破解结果: 成功 → 找到密码: ecupl-3001
 
 --- 场景: 快哈希 + 有盐 ---
-目标哈希: 87e02906b11f7a1679a59967c8e7f3e4730002851c7916fa826cb50b38fae43a
-盐值: e70cb73cdfc4c689
-彩虹表构建用时: 58.561s
-破解用时: 3.117s
+目标哈希: fd04e8c9b77e9b6a8c3991dd4748e434efd9dc67a044c640e75f44ca5fd74779
+盐值: 177203c9e465962d
+彩虹表构建用时: 37.816s
+破解用时: 1.931s
 破解结果: 失败 → 未找到匹配
 
 --- 场景: 慢哈希 + 无盐 ---
-目标哈希: 9164f27ba189a204b0d54ff08bc0373bbc103a640a7ad43c11bc03c9d65cd5e0
-预计构建时间: 293.0 分钟（已跳过实际构建）
+目标哈希: 1d568da79a262b0875a1190da33f4bbaecda60a682e5be97d474183b3ed64f2e
+预计构建时间: 260.4 分钟（已跳过实际构建）
 破解结果: 跳过（预计过久）
 
 --- 场景: 慢哈希 + 有盐 ---
-目标哈希: a5a30e61c010eb27eb117e6f0f04b788f4287d71b9f01893f213e6f893db0bb0
-盐值: 9870f695dde3b8c5
-预计构建时间: 265.4 分钟（已跳过实际构建）
+目标哈希: 6917b19325e69cffba936c0e02feb132141dfc764a3e6c5ca81132b71be8e2e3
+盐值: 5e245287d2c8132f
+预计构建时间: 261.6 分钟（已跳过实际构建）
 破解结果: 跳过（预计过久）
 
 ---

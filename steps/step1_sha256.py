@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import base64
 
-from context import get_password, set_sample
+from context import get_password, set_sample, set_trace, reset_trace
 from hash_impl.sha256 import SHA256
 from utils.formatting import print_step_header, print_success, print_info
 
@@ -45,8 +45,13 @@ def demo() -> None:
     pwd = get_password()
     print_info(f"明文: {pwd!r}")
 
+    reset_trace()
+    s = SHA256()
+    trace = s.get_trace(pwd.encode("utf-8"))
+    set_trace(trace)
+
     raw = pwd.encode("utf-8")
-    digest = sha256_digest(raw)
+    digest = trace["final_digest"]
     hex_out = digest.hex()
     b64_out = base64.b64encode(digest).decode("ascii")
     print_success(f"Hex:   {hex_out}")

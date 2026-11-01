@@ -116,6 +116,7 @@ class SHA256:
             for i in range(16, 64):
                 w[i] = (gamma1(w[i - 2]) + w[i - 7] + gamma0(w[i - 15]) + w[i - 16]) & 0xFFFFFFFF
 
+            initial_h = list(h)
             a, b, c, d, e, f, g, hh = h
             round_states = []
 
@@ -151,6 +152,7 @@ class SHA256:
 
             block_trace = {
                 "block_index": bi,
+                "initial_h": initial_h,
                 "message_schedule": w,
                 "round_states": round_states,
                 "result_h": list(h),
