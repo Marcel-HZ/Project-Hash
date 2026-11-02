@@ -123,13 +123,20 @@ class SHA256:
             for t in range(64):
                 ch_val = (e & f) ^ (~e & g)
                 maj_val = (a & b) ^ (a & c) ^ (b & c)
-                t1 = (hh + (rotr(e, 6) ^ rotr(e, 11) ^ rotr(e, 25)) + ch_val + K[t] + w[t]) & 0xFFFFFFFF
-                t2 = ((rotr(a, 2) ^ rotr(a, 13) ^ rotr(a, 22)) + maj_val) & 0xFFFFFFFF
+                sigma1_e = rotr(e, 6) ^ rotr(e, 11) ^ rotr(e, 25)
+                sigma0_a = rotr(a, 2) ^ rotr(a, 13) ^ rotr(a, 22)
+                t1 = (hh + sigma1_e + ch_val + K[t] + w[t]) & 0xFFFFFFFF
+                t2 = (sigma0_a + maj_val) & 0xFFFFFFFF
                 round_states.append({
                     "round": t,
                     "a": a, "b": b, "c": c, "d": d,
                     "e": e, "f": f, "g": g, "h": hh,
                     "w": w[t], "k": K[t],
+                    "ch": ch_val, "maj": maj_val,
+                    "sigma0": sigma0_a, "sigma1": sigma1_e,
+                    "t1": t1, "t2": t2,
+                    "a_new": (t1 + t2) & 0xFFFFFFFF,
+                    "e_new": (d + t1) & 0xFFFFFFFF,
                 })
                 hh = g
                 g = f

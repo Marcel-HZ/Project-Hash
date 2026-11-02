@@ -70,7 +70,7 @@ def run_all() -> None:
         sections.append(collect_fn())
 
     try:
-        path = generate_guide(sections, output_path=Path(__file__).resolve().parent / "HASH_DEMO_GUIDE.md")
+        path = generate_guide(sections, output_path=Path(__file__).resolve().parent / "HASH_DEMO_GUIDE.md", mode="full")
         print(f"\n文档已生成: {path}")
     except Exception as exc:
         print_error(f"文档生成失败: {exc}")
